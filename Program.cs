@@ -1,50 +1,68 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using archive_nintendo.UMSBT;
+using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace umsbt
+namespace UMSBT
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            if (args.Length != 0)
+            FileAttributes attr = File.GetAttributes(args[0]);
+            //detect whether its a directory or file
+            if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+                Build(args[0]);
+            else
+                Extract(args[0]);
+        }
+        public static void Extract(string game)
+        {
+            var reader = new BinaryReader(File.OpenRead(game));
+            int[] fileSize = new int[5];
+            int[] filePointers = new int[5];
+            for (int i = 0; i < 5; i++)
             {
-                FileAttributes attr = File.GetAttributes(args[0]);
-                bool isDir = false;
-                if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
-                    isDir = true;
-
-                if (!isDir) 
+                filePointers[i] = reader.ReadInt32();
+                fileSize[i] = reader.ReadInt32();
+            }
+            string outPath = Path.GetFileNameWithoutExtension(game) + "\\";
+            Directory.CreateDirectory(Path.GetFileNameWithoutExtension(game));
+            for (int i = 0; i < 5; i++)
+            {
+                reader.BaseStream.Position = filePointers[i];
+                byte[] text = reader.ReadBytes(fileSize[i]);
+                File.WriteAllBytes(outPath + i + ".msbt", text);
+                Array.Clear(text, 0, fileSize[i]);
+            }
+        }
+        public static void Build(string inputDirectory)
+        {
+            int[] fileSize = new int[5];
+            int[] fileOffset = new int[5];
+            using (BinaryWriter arcWriter = new BinaryWriter(File.Create(inputDirectory + ".umsbt")))
+            {
+                for (int i = 0; i < 48; i++)
                 {
-                    Directory.CreateDirectory(Path.GetFileNameWithoutExtension(args[0]));
-                    UMSBT msbt = new UMSBT(File.OpenRead(args[0]));
-                    foreach (var file in msbt.Files)
-                    {
-                        byte[] buf = new byte[(int)file.FileSize];
-                        using (Stream str = file.FileData)
-                        {
-                            str.Read(buf, 0, buf.Length);
-                        }
-                        File.WriteAllBytes(Path.GetFileNameWithoutExtension(args[0]) + "\\" + file.FileName, buf);
-                    }
+                    arcWriter.Write(new byte());
                 }
-                else
+                for (int i = 0; i < 5; i++)
                 {
-                    UMSBT umsbt = new UMSBT();
-                    string[] files = Directory.GetFiles(args[0], "*.msbt", SearchOption.TopDirectoryOnly);
-                    foreach(var file in files)
-                    {
-                        byte[] data = File.ReadAllBytes(file);
-                        umsbt.Files.Add(new UmsbtFileInfo
-                        {
-                            FileData = new MemoryStream(data)
-                        });
-                    }
-                    umsbt.Save(File.OpenWrite(args[0] + ".umsbt"));
+                    byte[] idk = File.ReadAllBytes(inputDirectory + "\\" + i + ".msbt");
+                    fileOffset[i] = (int)arcWriter.BaseStream.Position;
+                    fileSize[i] = idk.Length;
+                    arcWriter.Write(idk);
+                }
+                arcWriter.BaseStream.Position = 0;
+                for (int i = 0; i < 5; i++)
+                {
+                    arcWriter.Write(fileOffset[i]);
+                    arcWriter.Write(fileSize[i]);
                 }
             }
-            
         }
     }
 }

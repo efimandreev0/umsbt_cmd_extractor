@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UMSBT", "UMSBT.csproj", "{90A8AE79-D6B0-4813-9F57-6249CEE517DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{90A8AE79-D6B0-4813-9F57-6249CEE517DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90A8AE79-D6B0-4813-9F57-6249CEE517DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90A8AE79-D6B0-4813-9F57-6249CEE517DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90A8AE79-D6B0-4813-9F57-6249CEE517DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED090FD5-1E06-482E-A2FB-00859BFF9E0A}
+	EndGlobalSection
+EndGlobal
